@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  # Main Streamlit Application
+  credit-risk-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: credit-risk-platform
+    
+    ports:
+      - "8501:8501"
+    
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - PYTHONUNBUFFERED=1
+    
+    volumes:
+      # Mount data directory
+      - ./data:/app/data:ro
+      
+      # Mount models directory
+      - ./models:/app/models:rw
+      
+      # Mount outputs directory
+      - ./outputs:/app/outputs:rw
+      
+      # Mount source code (for live reload during development)
+      - ./src:/app/src:ro
+      - ./app.py:/app/app.py:ro
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    
+    # Logging
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    
+    # Restart policy
+    restart: unless-stopped
+    
+    # Networks
+    networks:
+      - credit-risk-network
+
+# Networks
+networks:
+  credit-risk-network:
+    driver: bridge
+
+# Volumes
+volumes:
+  data:
+    driver: local
+  models:
+    driver: local
+  outputs:
+    driver: local
