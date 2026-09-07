@@ -484,6 +484,3 @@ Christ University, Bengaluru
 September 2026
 
 ---
-
-**Last Updated:** September 6, 2026  
-**Status:** ✅ Ready for Submission
